@@ -1,7 +1,7 @@
 ## 개요
 
 React Native 공부용.
+전체적으로 flutter와 비슷한 느낌. 다만, flutter는 구조가 좀 복잡하게 느꼈는데 RN은 그래도 JS에서 따오다보니 비교적 수월했다.
 
 ## 새로 알게된 점
-
 -   `<div>`가 아닌 `<View>`, `<p>`가 아닌 `<Text>` ~~flutter랑 비슷하네~~
