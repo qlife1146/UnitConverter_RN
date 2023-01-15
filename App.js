@@ -1,111 +1,85 @@
-import { View, SafeAreaView, StyleSheet, Text, ScrollView, Dimensions, TouchableOpacity } from "react-native";
-import React, { useState, useEffect } from "react";
-// import { Magnetometer } from "expo-sensors";
-import * as Location from "expo-location";
-
-const SCREEN_WIDTH = Dimensions.get("window").width;
-//왜 그냥 SCREEN_WIDTH = Dimension ...은 안되지??
-//아 뒤에 width 추가해야되네;;;
+import * as React from "react";
+import { StatusBar, StyleSheet, View, useWindowDimensions, SafeAreaView, Text } from "react-native";
+import { TabView, TabBar, scrollPager } from "react-native-tab-view";
+import Area from "./components/Area";
+import Length from "./components/Length";
+import Temperature from "./components/Temperature";
+import Volume from "./components/Volume";
+import Weight from "./components/Weight";
+import Data from "./components/Data";
+import Velocity from "./components/Velocity";
+import Time from "./components/Time";
+import Tip from "./components/Tip";
 
 export default function App() {
-    const [city, setCity] = useState("Loading...");
-    const [location, setLocation] = useState(null);
-    const [errMsg, setErrMsg] = useState(true);
-    const ask = async () => {
-        const { granted } = await Location.requestForegroundPermissionsAsync();
-        console.log("permission:", permission);
-        if (!granted) {
-            setErrMsg(false);
-        }
-        const {
-            coords: { latitude, longitude },
-        } = await Location.getCurrentPositionAsync({ accuracy: 5 });
-        const location = await Location.reverseGeocodeAsync({ latitude, longitude }, { useGoogleMaps: false });
-        setCity(location[0].city);
-    };
+    const layout = useWindowDimensions(); //for tab bar width
 
-    useEffect(() => {
-        ask();
-    });
-
-    // const [{ x, y, z }, setData] = useState({ x: 0, y: 0, z: 0 });
-    // const [subscription, setSubscription] = useState(null);
-    // const _slow = () => Magnetometer.setUpdateInterval(1000);
-    // const _fast = () => Magnetometer.setUpdateInterval(16);
-
-    // const _subscribe = () =>
-    //     setSubscription(
-    //         Magnetometer.addListener((result) => {
-    //             setData(result);
-    //         })
-    //     );
-
-    // const _unsubscribe = () => {
-    //     subscription && subscription.remove();
-    //     setSubscription(null);
-    // };
-
-    // useEffect(() => {
-    //     _subscribe();
-
-    //     return () => {
-    //         _unsubscribe();
-    //     };
-    // }, []);
+    const [index, setIndex] = React.useState(0); //위치 index
+    const [routes] = React.useState([
+        { key: "Area", title: "면적" },
+        { key: "Length", title: "길이" },
+        { key: "Temperature", title: "온도" },
+        { key: "Volume", title: "부피" },
+        { key: "Weight", title: "무게" },
+        { key: "Data", title: "데이터" },
+        { key: "Velocity", title: "속도" },
+        { key: "Time", title: "시간" },
+        { key: "Tip", title: "팁" },
+    ]);
 
     return (
-        // <SafeAreaView>
-
-        //         <Text>Magnetometer:</Text>
-        //         <Text>x: {x}</Text>
-        //         <Text>y: {y}</Text>
-        //         <Text>z: {z}</Text>
-        //         <TouchableOpacity onPress={subscription ? _unsubscribe : _subscribe}>
-        //             <Text>{subscription ? "on" : "off"}</Text>
-        //         </TouchableOpacity>
-        //         <TouchableOpacity onPress={_slow}>
-        //             <Text>Slow</Text>
-        //         </TouchableOpacity>
-        //         <TouchableOpacity onPress={_fast}>
-        //             <Text>Fast</Text>
-        //         </TouchableOpacity>
-        // </SafeAreaView>
         <SafeAreaView style={styles.container}>
-            <View style={styles.city}>
-                <Text style={styles.cityName}>{city}</Text>
-            </View>
-            <ScrollView
-                pagingEnabled
-                showsHorizontalScrollIndicator={false}
-                //"false"가 아니라 {false}
-                horizontal
-                contentContainerStyle={styles.weather}
-            >
-                <View style={styles.day}>
-                    <Text style={styles.temp}>27℃</Text>
-                    <Text style={styles.description}>Sunny</Text>
-                </View>
-                <View style={styles.day}>
-                    <Text style={styles.temp}>27℃</Text>
-                    <Text style={styles.description}>Sunny</Text>
-                </View>
-                <View style={styles.day}>
-                    <Text style={styles.temp}>27℃</Text>
-                    <Text style={styles.description}>Sunny</Text>
-                </View>
-                <View style={styles.day}>
-                    <Text style={styles.temp}>27℃</Text>
-                    <Text style={styles.description}>Sunny</Text>
-                </View>
-                <View style={styles.day}>
-                    <Text style={styles.temp}>27℃</Text>
-                    <Text style={styles.description}>Sunny</Text>
-                </View>
-                <View style={styles.day}>
-                    <Text style={styles.temp}>27℃</Text>
-                    <Text style={styles.description}>Sunny</Text>
-                </View>
-            </ScrollView>
+            {/* <Text> h </Text> */}
+            <TabView
+                renderPager={(props) =>
+                    Platform.OS === "ios" ? (
+                        <ScrollPager {...props} />
+                    ) : (
+                        <ViewPagerAdapter
+                            {...props}
+                            transition="curl"
+                            showPageIndicator
+                        />
+                    )
+                }
+                navigationState={{ index, routes }}
+                // renderScene={renderScene}
+                onIndexChange={setIndex}
+                initialLayout={{ width: layout.width }}
+                scrollEnabled={true}
+                animationEnabled={true}
+                renderTabBar={(props) => (
+                    <TabBar
+                        {...props}
+                        scrollEnabled
+                        tabStyle={{ width: "auto" }}
+                    />
+                )}
+                renderScene={({ route }) => {
+                    switch (route.key) {
+                        case "Area":
+                            return <Area />;
+                        case "Data":
+                            return <Data />;
+                        case "Length":
+                            return <Length />;
+                        case "Temperature":
+                            return <Temperature />;
+                        case "Time":
+                            return <Time />;
+                        case "Tip":
+                            return <Tip />;
+                        case "Velocity":
+                            return <Velocity />;
+                        case "Volume":
+                            return <Volume />;
+                        case "Weight":
+                            return <Weight />;
+                        default:
+                            break;
+                    }
+                }}
+            />
         </SafeAreaView>
     );
 }
@@ -113,32 +87,6 @@ export default function App() {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: "tomato",
-    },
-    city: {
-        flex: 1,
-        // backgroundColor: "blue",
-        justifyContent: "center",
-        alignItems: "center",
-    },
-    cityName: {
-        fontSize: 100,
-        fontWeight: "600",
-    },
-    weather: {
-        backgroundColor: "blue",
-    },
-    day: {
-        width: SCREEN_WIDTH,
-        alignItems: "center",
-        justifyContent: "center", // 아이패드에서는 안되길래 content를 center에 맞추니 잘됐다.
-    },
-    temp: {
-        fontSize: 200,
-        fontWeight: "600",
-    },
-    description: {
-        fontSize: 100,
-        fontWeight: "400",
+        marginTop: StatusBar.currentHeight,
     },
 });
